@@ -145,7 +145,9 @@ class Ui_MainWindow(object):
         self.sliderBoxes = [SliderBox(self.sliderBoxParent, self.motorDriver) for i in range(numOfBoxes)]
         self.numofSliderBoxes = numOfBoxes
 
-        for i in self.sliderBoxes:
+        for index, i in enumerate(self.sliderBoxes):
+            # if index >= 2:
+            #     break
             self.verticalLayout_2.addLayout(i.getLayout())
 
         self.scrollSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
@@ -174,7 +176,8 @@ class Ui_MainWindow(object):
     def saveConfig(self):
 
         print("Saving config...")
-        with open("configFileName.txt", "w") as file:
+        filename = QFileDialog.getSaveFileName(caption="Save config file", filter="*.txt")[0]
+        with open(filename, "w") as file:
 
             file.write(str(len(self.sliderBoxes)) + "\n")
 

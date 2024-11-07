@@ -1,5 +1,6 @@
 from typing import Optional
 
+from PySide6.QtGui import QPalette, QColor
 from PySide6.QtWidgets import *
 from PySide6.QtCore import Qt, QCoreApplication, QObject, QEvent
 import PySide6
@@ -99,7 +100,8 @@ class SliderBox(QWidget):
 
         self.titleLine = QLineEdit(self)
         self.titleLine.setObjectName(str(self) + "titleLine")
-        self.mainLayout.addWidget(self.titleLine, 0, 0, 1, 3)
+        self.titleLine.setStyleSheet("""QLineEdit { background-color: rgba(20, 20, 20, 255); color: white }""")
+        self.mainLayout.addWidget(self.titleLine, 0, 0, 1, 2)
 
         self.movementInputTextBox = QPlainTextEdit(self)
         self.movementInputTextBox.setObjectName(str(self) + "plainTextEdit")

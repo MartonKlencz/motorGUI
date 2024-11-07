@@ -8,6 +8,10 @@ INT16_MAX = 32767
 UINT16_MIN = 0
 UINT16_MAX = 65535
 
+# Future TODO:
+# reconnecting doesnt reset motorDriver.directMovementsActivated
+# changing sliderBox count with spinBox causes all sliderBoxes to be cleared
+
 
 class SerialHandler:
     header = 0xaa
@@ -29,7 +33,17 @@ class SerialHandler:
             print("error, invalid data")
             return
         print(data)
-        self.ser.write(data)
+        if self.ser is not None:
+            try:
+                self.ser.write(data)
+                return True
+            except serial.SerialException:
+                print("Error: Could not send command!")
+                return False
+        else:
+            print("Not connected!")
+            return False
+
 
     def getPorts(self):
         return list_ports.comports()
@@ -70,11 +84,12 @@ class MotorDriver:
             # if it's a direct movement request, send 0x10 once before sending packages
             if MovementIDs[i] in self.directMovements:
                 if not self.directMovementsActivated:
-                    self.directMovementsActivated = True
+
                     data = [0 for tmp in range(9)]
                     data[0] = self.deviceID
                     data[1] = 0x10
-                    self.serialHandler.send(data)
+                    if self.serialHandler.send(data):
+                        self.directMovementsActivated = True
             else:
                 self.directMovementsActivated = False
 
