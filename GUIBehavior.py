@@ -1,17 +1,18 @@
 from typing import Optional
 
 from PySide6.QtWidgets import *
-from PySide6.QtCore import Qt, QCoreApplication
+from PySide6.QtCore import Qt, QCoreApplication, QObject, QEvent
 import PySide6
 import numpy as np
 from motorDriver import MotorDriver, INT16_MIN, INT16_MAX, UINT16_MIN, UINT16_MAX
 
 
+
 class SliderRow():
+    cols = 3  # three widgets in a row: a QLineEdit for the title, a QSlider, and a value display QLabel
 
-    cols = 3 # three widgets in a row: a QLineEdit for the title, a QSlider, and a value display QLabel
-
-    def __init__(self, parent, name, sliderMin=INT16_MIN, sliderMax=INT16_MAX, sliderStart=0, displayMin=-1.0, displayMax=1.0):
+    def __init__(self, parent, name, sliderMin=INT16_MIN, sliderMax=INT16_MAX, sliderStart=0, displayMin=-1.0,
+                 displayMax=1.0):
 
         self.parent = parent
         self.name = QLabel(parent)
@@ -24,7 +25,8 @@ class SliderRow():
         self.slider.setMinimum(sliderMin)
         self.slider.setMaximum(sliderMax)
         self.slider.setSliderPosition(sliderStart)
-        self.slider.wheelEvent = lambda _: ...  # disable changing value by scrolling
+        # pass scrolling event to parent to avoid changing value by scrolling
+        self.slider.wheelEvent = lambda *args, **kwargs: self.parent.wheelEvent(*args, **kwargs)
 
         self.slider.valueChanged.connect(self.sliderValueChanged)
 
@@ -33,12 +35,11 @@ class SliderRow():
         self.valueLabel = QLabel(parent)
         self.displaySliderValue(sliderStart)
 
-
         self.widgets = [
             self.name,
             self.slider,
             self.valueLabel
-            ]
+        ]
         # format: [rowSpan, colSpan]
         self.spans = [
             [1, 1],
@@ -47,6 +48,7 @@ class SliderRow():
         ]
 
         if len(self.spans) != len(self.widgets):
+            print("Error 97")
             exit(97)
 
     def displaySliderValue(self, value):
@@ -68,10 +70,10 @@ class SliderRow():
                 colOffset += self.spans[j][1]
             grid.addWidget(self.widgets[i], startRow, startCol + colOffset, self.spans[i][0], self.spans[i][1])
 
-
     def retranslate(self):
         self.name.setText(QCoreApplication.translate("MainWindow", self.name.text(), None))
         self.valueLabel.setText(QCoreApplication.translate("MainWindow", self.valueLabel.text(), None))
+
 
 class SliderBox(QWidget):
 
@@ -101,11 +103,15 @@ class SliderBox(QWidget):
 
         self.movementInputTextBox = QPlainTextEdit(self)
         self.movementInputTextBox.setObjectName(str(self) + "plainTextEdit")
+        self.movementInputTextBox.setMaximumHeight(self.titleLine.height() + 10)
+        self.movementInputTextBox.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        self.movementInputTextBox.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
         self.mainLayout.addWidget(self.movementInputTextBox, 2, 0, 1, 3)
 
         self.sliders = [
             SliderRow(self, "Position", sliderMin=INT16_MIN, sliderMax=INT16_MAX),
-            SliderRow(self, "Velocity", sliderMin=UINT16_MIN, sliderMax=UINT16_MAX),
+            SliderRow(self, "Velocity", sliderMin=UINT16_MIN, sliderMax=UINT16_MAX,
+                      sliderStart=(UINT16_MIN + UINT16_MAX) / 2),
             SliderRow(self, "Power", sliderMin=UINT16_MIN, sliderMax=UINT16_MAX,
                       sliderStart=(UINT16_MIN + UINT16_MAX) / 2)
         ]
@@ -178,4 +184,3 @@ class SliderBox(QWidget):
         self.titleLine.setText(d["title"])
         self.movementInputTextBox.setPlainText(d["movements"])
         self.checkBoxAbsRel.setChecked(d["absRel"] == "True")
-

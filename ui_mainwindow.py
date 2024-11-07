@@ -56,9 +56,9 @@ class Ui_MainWindow(object):
         self.button_Save = QPushButton(self.tab_Options)
         self.button_Save.setText("Save")
         self.button_Save.clicked.connect(lambda: self.saveConfig())
-        self.spacer_saveButton = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
         self.gridLayout_4.addWidget(self.button_Save, 1, 0, 1, 1)
-        self.gridLayout_4.addItem(self.spacer_saveButton, 1, 1, 1, 1)
+
 
         self.loadLabel = QLabel(text="Load control scheme")
         self.gridLayout_4.addWidget(self.loadLabel, 2, 0, 1, 2)
@@ -67,8 +67,23 @@ class Ui_MainWindow(object):
         self.button_Load.clicked.connect(lambda: self.loadConfig())
         self.gridLayout_4.addWidget(self.button_Load, 3, 0, 1, 1)
 
-        self.spacer_optionsTab = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        self.gridLayout_4.addItem(self.spacer_optionsTab, 4, 0)
+        self.label_sliderCountSet = QLabel(text="Set number of slider boxes")
+        self.gridLayout_4.addWidget(self.label_sliderCountSet, 4, 0, 1, 2)
+
+        self.spinBox = QSpinBox(self.tab_Options)
+        self.spinBox.setValue(self.defaultNumOfSliderBoxes)
+        self.spinBox.valueChanged.connect(lambda n: self.createSliderBoxScrollArea(n))
+        self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(100)
+        self.gridLayout_4.addWidget(self.spinBox, 5, 0, 1, 1)
+
+        # horizontal spacer on the right of options tab, pushes everything to the left
+        self.spacer_optionsTabHorizontal = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.gridLayout_4.addItem(self.spacer_optionsTabHorizontal, 0, self.gridLayout_4.columnCount())
+
+        # vertical spacer on bottom of options tab, pushes everything up
+        self.spacer_optionsTabVertical = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.gridLayout_4.addItem(self.spacer_optionsTabVertical, self.gridLayout_4.rowCount(), 0)
 
         self.tabWidget.addTab(self.tab_Options, "")  # ------------------------------ /TAB3 ---------------------------
 
@@ -93,6 +108,7 @@ class Ui_MainWindow(object):
 
     def createSliderBoxScrollArea(self, numOfBoxes):
 
+        print("creating")
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 762, 492))
@@ -106,6 +122,8 @@ class Ui_MainWindow(object):
         for i in self.sliderBoxes:
             self.verticalLayout_2.addLayout(i.getLayout())
 
+        self.scrollSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        self.verticalLayout_2.addItem(self.scrollSpacer)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
     def retranslateUi(self, MainWindow):
@@ -140,9 +158,15 @@ class Ui_MainWindow(object):
     def loadConfig(self):
 
         print("Loading config...")
-        with open("configFileName.txt", "r") as file:
+
+        filename = QFileDialog.getOpenFileName(caption="Choose config file", filter="*.txt")[0]
+
+        with open(filename, "r") as file:
 
             self.createSliderBoxScrollArea(int(file.readline()))
+            self.spinBox.blockSignals(True)
+            self.spinBox.setValue(self.numofSliderBoxes)
+            self.spinBox.blockSignals(False)
             print(f"Found {self.numofSliderBoxes} slider boxes")
 
             for i in range(self.numofSliderBoxes):
