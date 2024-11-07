@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
         self.ui.addMotorDriver(motorDriver)
         self.ui.setupUi(self)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -19,7 +20,6 @@ if __name__ == "__main__":
 
     window = MainWindow(motorDriver)
     window.show()
-
 
 
 

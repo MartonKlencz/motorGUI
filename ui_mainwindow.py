@@ -30,6 +30,32 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName(u"tabWidget")
         self.tab_Serial = QWidget()  # --------------------------------- TAB 1 --------------------------------------
         self.tab_Serial.setObjectName(u"tab")
+
+        self.gridLayout_5 = QGridLayout(self.tab_Serial)
+
+        self.serialTitleLabel = QLabel(text="Choose COM port")
+        self.gridLayout_5.addWidget(self.serialTitleLabel, 0, 0)
+
+        self.serialChooserBox = QComboBox()
+        self.serialChooserBox.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.gridLayout_5.addWidget(self.serialChooserBox, 1, 1)
+
+        self.serialScanButton = QPushButton(text="Scan")
+        self.serialScanButton.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self.serialScanButton.clicked.connect(lambda: self.updateComportsList())
+        self.updateComportsList()
+        self.gridLayout_5.addWidget(self.serialScanButton, 1, 0)
+
+        self.serialConnectButton = QPushButton(text="Connect")
+        self.serialConnectButton.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self.serialConnectButton.clicked.connect(lambda: self.connectToSerial())
+        self.gridLayout_5.addWidget(self.serialConnectButton, 1, 2)
+
+        self.serialTabHorizontalSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.gridLayout_5.addItem(self.serialTabHorizontalSpacer, 0, self.gridLayout_5.columnCount())
+        self.serialTabVerticalSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        self.gridLayout_5.addItem(self.serialTabVerticalSpacer, self.gridLayout_5.rowCount(), 0)
+
         self.tabWidget.addTab(self.tab_Serial, "")
         self.tab_Control = QWidget()  # -------------------------------- TAB 2 ----------------------------------------
         self.tab_Control.setObjectName(u"tab_2")
@@ -172,3 +198,11 @@ class Ui_MainWindow(object):
             for i in range(self.numofSliderBoxes):
                 line = (file.readline())
                 self.sliderBoxes[i].loadFromText(line)
+
+    def updateComportsList(self):
+        self.serialChooserBox.clear()
+        for port in self.motorDriver.fetchComports():
+            self.serialChooserBox.addItem(port.description, userData=port)
+
+    def connectToSerial(self):
+        self.motorDriver.connectToSerial(self.serialChooserBox.itemData(self.serialChooserBox.currentIndex()).device)

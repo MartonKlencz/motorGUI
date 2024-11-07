@@ -1,5 +1,7 @@
 import serial
 import numpy as np
+from serial.tools import list_ports
+import serial
 
 INT16_MIN = -32768
 INT16_MAX = 32767
@@ -9,8 +11,11 @@ UINT16_MAX = 65535
 
 class SerialHandler:
     header = 0xaa
-
+    ser = None
     # TODO
+
+    def __init__(self, baudrate):
+        self.baudrate = baudrate
 
     def send(self, data):
         data.insert(0, self.header)
@@ -24,10 +29,16 @@ class SerialHandler:
             print("error, invalid data")
             return
         print(data)
+        self.ser.write(data)
 
+    def getPorts(self):
+        return list_ports.comports()
+
+    def connect(self, device):
+        self.ser = serial.Serial(device, baudrate=self.baudrate)
 
 class MotorDriver:
-    serialHandler = SerialHandler()
+    serialHandler = SerialHandler(baudrate=115200)
     deviceID = 0x0c
     directMovements = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17]
     directMovementsActivated = False
@@ -92,3 +103,9 @@ class MotorDriver:
                     newPowerRatio & 0xff,
                     ]
             self.serialHandler.send(data)
+
+    def fetchComports(self):
+        return self.serialHandler.getPorts()
+
+    def connectToSerial(self, device):
+        self.serialHandler.connect(device)
