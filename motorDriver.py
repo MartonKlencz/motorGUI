@@ -9,8 +9,7 @@ UINT16_MIN = 0
 UINT16_MAX = 65535
 
 # Future TODO:
-# reconnecting doesnt reset motorDriver.directMovementsActivated
-# changing sliderBox count with spinBox causes all sliderBoxes to be cleared
+
 
 
 class SerialHandler:
@@ -49,7 +48,11 @@ class SerialHandler:
         return list_ports.comports()
 
     def connect(self, device):
-        self.ser = serial.Serial(device, baudrate=self.baudrate)
+        try:
+            self.ser = serial.Serial(device, baudrate=self.baudrate)
+            return True
+        except serial.SerialException:
+            return False
 
 class MotorDriver:
     serialHandler = SerialHandler(baudrate=115200)
@@ -123,4 +126,5 @@ class MotorDriver:
         return self.serialHandler.getPorts()
 
     def connectToSerial(self, device):
-        self.serialHandler.connect(device)
+        self.directMovementsActivated = False
+        return self.serialHandler.connect(device)

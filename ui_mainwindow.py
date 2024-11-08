@@ -1,16 +1,9 @@
-# -*- coding: utf-8 -*-
 
-################################################################################
-## Form generated from reading UI file 'designerWznHBU.ui'
-##
-## Created by: Qt User Interface Compiler version 6.8.0
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
 import PySide6
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+from serial.tools.list_ports_common import ListPortInfo
 
 from GUIBehavior import SliderBox
 from motorDriver import MotorDriver
@@ -28,6 +21,17 @@ class Ui_MainWindow(object):
         self.gridLayout.setObjectName(u"gridLayout")
         self.tabWidget = QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName(u"tabWidget")
+
+        self.connectionDisplayLayout = QHBoxLayout()
+        self.connectionDisplayTitle = QLabel(text="Connected to:")
+        self.connectionDisplayLayout.addWidget(self.connectionDisplayTitle)
+        self.connectionDisplayDevice = QLabel()
+        self.connectionDisplayLayout.addWidget(self.connectionDisplayDevice)
+        self.topSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.connectionDisplayLayout.addItem(self.topSpacer)
+
+        self.gridLayout.addLayout(self.connectionDisplayLayout, 0, 0, 1, 1)
+
         self.tab_Serial = QWidget()  # --------------------------------- TAB 1 --------------------------------------
         self.tab_Serial.setObjectName(u"tab")
 
@@ -66,6 +70,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setObjectName(u"scrollArea")
         self.scrollArea.setWidgetResizable(True)
 
+        self.sliderBoxes = None
         self.createSliderBoxScrollArea(self.defaultNumOfSliderBoxes)
         self.numofSliderBoxes = self.defaultNumOfSliderBoxes
 
@@ -98,7 +103,7 @@ class Ui_MainWindow(object):
 
         self.spinBox = QSpinBox(self.tab_Options)
         self.spinBox.setValue(self.defaultNumOfSliderBoxes)
-        self.spinBox.valueChanged.connect(lambda n: self.createSliderBoxScrollArea(n))
+        self.spinBox.valueChanged.connect(lambda n: self.createSliderBoxScrollArea(n, keepPrevious=True))
         self.spinBox.setMinimum(1)
         self.spinBox.setMaximum(100)
         self.gridLayout_4.addWidget(self.spinBox, 5, 0, 1, 1)
@@ -113,7 +118,7 @@ class Ui_MainWindow(object):
 
         self.tabWidget.addTab(self.tab_Options, "")  # ------------------------------ /TAB3 ---------------------------
 
-        self.gridLayout.addWidget(self.tabWidget, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
 
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -132,7 +137,7 @@ class Ui_MainWindow(object):
 
         QMetaObject.connectSlotsByName(MainWindow)
 
-    def createSliderBoxScrollArea(self, numOfBoxes):
+    def createSliderBoxScrollArea(self, numOfBoxes, keepPrevious=False):
 
         print("creating")
         self.scrollAreaWidgetContents = QWidget()
@@ -140,9 +145,19 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 762, 492))
         self.verticalLayout_2 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-
         self.sliderBoxParent = QWidget()
-        self.sliderBoxes = [SliderBox(self.sliderBoxParent, self.motorDriver) for i in range(numOfBoxes)]
+
+        if keepPrevious:
+            self.sliderBoxes_tmp = self.sliderBoxes
+            self.sliderBoxes = [SliderBox(self.sliderBoxParent, self.motorDriver) for i in range(numOfBoxes)]
+            # copy settings
+            for index, i in enumerate(self.sliderBoxes):
+                if index >= len(self.sliderBoxes_tmp):
+                    break
+                i.loadFromText(self.sliderBoxes_tmp[index].saveToText())
+        else:
+            self.sliderBoxes = [SliderBox(self.sliderBoxParent, self.motorDriver) for i in range(numOfBoxes)]
+
         self.numofSliderBoxes = numOfBoxes
 
         for index, i in enumerate(self.sliderBoxes):
@@ -177,6 +192,10 @@ class Ui_MainWindow(object):
 
         print("Saving config...")
         filename = QFileDialog.getSaveFileName(caption="Save config file", filter="*.txt")[0]
+
+        if not filename:
+            return
+
         with open(filename, "w") as file:
 
             file.write(str(len(self.sliderBoxes)) + "\n")
@@ -189,6 +208,9 @@ class Ui_MainWindow(object):
         print("Loading config...")
 
         filename = QFileDialog.getOpenFileName(caption="Choose config file", filter="*.txt")[0]
+
+        if not filename:
+            return
 
         with open(filename, "r") as file:
 
@@ -208,4 +230,9 @@ class Ui_MainWindow(object):
             self.serialChooserBox.addItem(port.description, userData=port)
 
     def connectToSerial(self):
-        self.motorDriver.connectToSerial(self.serialChooserBox.itemData(self.serialChooserBox.currentIndex()).device)
+
+        port: ListPortInfo = self.serialChooserBox.itemData(self.serialChooserBox.currentIndex())
+        success = self.motorDriver.connectToSerial(port.device)
+        if success:
+            self.connectionDisplayDevice.setText(port.description)
+
