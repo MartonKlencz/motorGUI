@@ -56,7 +56,7 @@ class SerialHandler:
 
 class MotorDriver:
     serialHandler = SerialHandler(baudrate=115200)
-    deviceID = 0x0c
+    deviceID = 0x0a
     directMovements = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17]
     directMovementsActivated = False
 
@@ -102,6 +102,8 @@ class MotorDriver:
             newVelocityRatio = abs(round(velocityRatio * MovementRatioModifiers[i]))  # absolute value because UINT
             newPowerRatio = abs(round(powerRatio * MovementRatioModifiers[i]))  # absolute value because UINT
 
+
+
             # limit in the usable range
             newPositionRatio = min(max(newPositionRatio, INT16_MIN), INT16_MAX)
             newVelocityRatio = min(max(newVelocityRatio, UINT16_MIN), UINT16_MAX)
@@ -109,6 +111,10 @@ class MotorDriver:
 
             # overwrite position for now TODO delete this if possible
             newPositionRatio = INT16_MAX if newPowerRatio > (UINT16_MIN + UINT16_MAX) / 2 else INT16_MIN
+            newPowerRatio = int(abs(newPowerRatio - (UINT16_MIN + UINT16_MAX) / 2))
+            newPowerRatio = min(max(newPowerRatio, UINT16_MIN), UINT16_MAX)
+
+            newVelocityRatio = UINT16_MAX
 
             data = [self.deviceID,
                     MovementIDs[i],

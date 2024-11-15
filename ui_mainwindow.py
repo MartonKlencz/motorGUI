@@ -147,6 +147,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.sliderBoxParent = QWidget()
 
+        # every time we call this function the whole scroll area widget is reset, I've run into some issues with setting
+        # the parents of the children and stuff so this is a bit of a hack to get around having to do this properly
         if keepPrevious:
             self.sliderBoxes_tmp = self.sliderBoxes
             self.sliderBoxes = [SliderBox(self.sliderBoxParent, self.motorDriver) for i in range(numOfBoxes)]
@@ -214,7 +216,7 @@ class Ui_MainWindow(object):
 
         with open(filename, "r") as file:
 
-            self.createSliderBoxScrollArea(int(file.readline()))
+            self.createSliderBoxScrollArea(int(file.readline()), keepPrevious=False)
             self.spinBox.blockSignals(True)
             self.spinBox.setValue(self.numofSliderBoxes)
             self.spinBox.blockSignals(False)
