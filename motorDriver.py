@@ -57,7 +57,7 @@ class SerialHandler:
 class MotorDriver:
     serialHandler = SerialHandler(baudrate=115200)
     deviceID = 0x0a
-    directMovements = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17]
+    directMovements = [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20]
     directMovementsActivated = False
 
     # def __init__(self):
@@ -111,7 +111,7 @@ class MotorDriver:
 
             # overwrite position for now TODO delete this if possible
             newPositionRatio = INT16_MAX if newPowerRatio > (UINT16_MIN + UINT16_MAX) / 2 else INT16_MIN
-            newPowerRatio = int(abs(newPowerRatio - (UINT16_MIN + UINT16_MAX) / 2))
+            newPowerRatio = int(abs(newPowerRatio - (UINT16_MIN + UINT16_MAX) / 2) * 2)
             newPowerRatio = min(max(newPowerRatio, UINT16_MIN), UINT16_MAX)
 
             newVelocityRatio = UINT16_MAX

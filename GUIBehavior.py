@@ -126,7 +126,7 @@ class SliderBox(QWidget):
         self.waitBetweenSignals = QLineEdit()
         self.waitBetweenSignals.setValidator(QRegularExpressionValidator("[+]?([0-9]*[.])?[0-9]+"))
         self.waitBetweenSignals.setMaximumWidth(80)
-        self.waitBetweenSignals.setText("0.1")
+        self.waitBetweenSignals.setText("0.06") # 0.06 worked better
         self.waitBetweenSignals.setEnabled(False)
         self.mainLayout.addWidget(self.waitBetweenSignals, 2, 5, 1, 1)
 
@@ -144,7 +144,7 @@ class SliderBox(QWidget):
 
         self.titleLine = QLineEdit(self)
         self.titleLine.setObjectName(str(self) + "titleLine")
-        self.titleLine.setStyleSheet("""QLineEdit { background-color: rgba(20, 20, 20, 255); color: white }""")
+        # self.titleLine.setStyleSheet("""QLineEdit { background-color: rgba(20, 20, 20, 255); color: white }""")
         self.mainLayout.addWidget(self.titleLine, 0, 0, 1, 2)
 
         self.movementInputTextBox = QPlainTextEdit(self)
