@@ -100,18 +100,16 @@ class MotorDriver:
             # apply modifiers
             newPositionRatio = round(positionRatio * MovementRatioModifiers[i])
             newVelocityRatio = abs(round(velocityRatio * MovementRatioModifiers[i]))  # absolute value because UINT
-            newPowerRatio = abs(round(powerRatio * MovementRatioModifiers[i]))  # absolute value because UINT
+            newPowerRatio = round(powerRatio * MovementRatioModifiers[i])
 
 
+            # overwrite position for now TODO delete this if possible
+            newPositionRatio = INT16_MAX if newPowerRatio > 0 else INT16_MIN
+            newPowerRatio = abs(newPowerRatio)
 
             # limit in the usable range
             newPositionRatio = min(max(newPositionRatio, INT16_MIN), INT16_MAX)
             newVelocityRatio = min(max(newVelocityRatio, UINT16_MIN), UINT16_MAX)
-            newPowerRatio = min(max(newPowerRatio, UINT16_MIN), UINT16_MAX)
-
-            # overwrite position for now TODO delete this if possible
-            newPositionRatio = INT16_MAX if newPowerRatio > (UINT16_MIN + UINT16_MAX) / 2 else INT16_MIN
-            newPowerRatio = int(abs(newPowerRatio - (UINT16_MIN + UINT16_MAX) / 2) * 2)
             newPowerRatio = min(max(newPowerRatio, UINT16_MIN), UINT16_MAX)
 
             newVelocityRatio = UINT16_MAX

@@ -91,7 +91,6 @@ class SliderRow():
 
         if self.parent.checkBoxAbsRel.isChecked():
             self.resetSlider()
-        print("finished")
 
     def resetSlider(self):
         self.slider.blockSignals(True)
@@ -158,8 +157,8 @@ class SliderBox(QWidget):
             SliderRow(self, "Position", sliderMin=INT16_MIN, sliderMax=INT16_MAX),
             SliderRow(self, "Velocity", sliderMin=UINT16_MIN, sliderMax=UINT16_MAX,
                       sliderStart=(UINT16_MIN + UINT16_MAX) / 2),
-            SliderRow(self, "Power", sliderMin=UINT16_MIN, sliderMax=UINT16_MAX,
-                      sliderStart=(UINT16_MIN + UINT16_MAX) / 2)
+            SliderRow(self, "Power", sliderMin=-1 * UINT16_MAX, sliderMax=UINT16_MAX,
+                      sliderStart=0)
         ]
 
         for index, i in enumerate(self.sliders):
