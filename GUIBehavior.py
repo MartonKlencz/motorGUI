@@ -113,6 +113,25 @@ class SliderRow():
 
 class SliderBox(QWidget):
 
+    handMovementToMessageID = {
+        "W_FE":     0x11,
+        "W_AA":     0x12,
+        "W_PS":     0x13,
+        "FPL":      0x14,
+        "OP":       0x15,
+        "APB":      0x16,
+        "AP":       0x17,
+        "FDP2":     0x18,
+        "EDC2":     0x19,
+        "INT2":     0x1a,
+        "FDP3":     0x1b,
+        "EDC3":     0x1c,
+        "INT3":     0x1d,
+        "FDP4":     0x1e,
+        "FDP5":     0x1f,
+        "LUM":      0x20
+    }
+
     def __init__(self, parent: (Optional[PySide6.QtWidgets.QWidget]), motorDriver: MotorDriver):
 
         super().__init__(parent)
@@ -196,7 +215,10 @@ class SliderBox(QWidget):
             movementIDs = []
             movementRatioModifiers = []
             for movement in splitText:
-                movementIDs.append(int(movement[0], 16))
+                if movement[0] in self.handMovementToMessageID:
+                    movementIDs.append(self.handMovementToMessageID[movement[0]])
+                else:
+                    movementIDs.append(int(movement[0], 16))
                 movementRatioModifiers.append(float(movement[1]))
 
             # normalize ratios
@@ -206,7 +228,7 @@ class SliderBox(QWidget):
             print(movementRatioModifiers)
             return movementIDs, movementRatioModifiers
         except:
-            print("No movements defined")
+            print("No movements defined or wrong format!")
             return [], []
 
     def getLayout(self):
