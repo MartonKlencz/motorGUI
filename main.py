@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
 from ui_mainwindow import Ui_MainWindow
 from motorDriver import MotorDriver
+from PySide6.QtCore import Qt
 
 class MainWindow(QMainWindow):
     def __init__(self, motorDriver):
@@ -11,7 +12,7 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.addMotorDriver(motorDriver)
         self.ui.setupUi(self)
-
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

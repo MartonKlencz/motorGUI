@@ -5,9 +5,17 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from serial.tools.list_ports_common import ListPortInfo
 
-from GUIBehavior import SliderBox
+from GUIBehavior import SliderBox, SliderRow
 from motorDriver import MotorDriver
 import json
+
+class SliderBoxParent(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.lastSliderSelected = None
+
+    def setSlider(self, slider: SliderRow):
+        self.lastSliderSelected = slider
 
 class Ui_MainWindow(object):
     defaultNumOfSliderBoxes = 6
@@ -71,6 +79,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
 
         self.sliderBoxes = None
+        self.sliderBoxParent = SliderBoxParent()
         self.createSliderBoxScrollArea(self.defaultNumOfSliderBoxes)
         self.numofSliderBoxes = self.defaultNumOfSliderBoxes
 
@@ -137,6 +146,8 @@ class Ui_MainWindow(object):
 
         QMetaObject.connectSlotsByName(MainWindow)
 
+
+
     def createSliderBoxScrollArea(self, numOfBoxes, keepPrevious=False):
 
         print("creating")
@@ -145,7 +156,7 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 762, 492))
         self.verticalLayout_2 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.sliderBoxParent = QWidget()
+        self.sliderBoxParent = SliderBoxParent()
 
         # every time we call this function the whole scroll area widget is reset, I've run into some issues with setting
         # the parents of the children and stuff so this is a bit of a hack to get around having to do this properly

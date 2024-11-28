@@ -11,7 +11,7 @@ import time
 
 
 class SliderRow():
-    cols = 3  # three widgets in a row: a QLineEdit for the title, a QSlider, and a value display QLabel
+    cols = 4  # four widgets in a row: a QLineEdit for the title, a QSlider, a value display QLabel, and a keep value checkbox
 
     def __init__(self, parent, name, sliderMin=INT16_MIN, sliderMax=INT16_MAX, sliderStart=0, displayMin=-1.0,
                  displayMax=1.0):
@@ -34,11 +34,17 @@ class SliderRow():
         self.slider.valueChanged.connect(self.sliderValueChanged)
         self.slider.sliderPressed.connect(self.sliderPressed)
         self.slider.sliderReleased.connect(self.sliderReleased)
+        self.slider.keyPressEvent = self.sliderKeyPress
+        self.slider.keyReleaseEvent = self.sliderKeyRelease
+
 
         self.displayMin = displayMin
         self.displayMax = displayMax
         self.valueLabel = QLabel(parent)
         self.displaySliderValue(sliderStart)
+
+        self.keepValueCheckBox = QCheckBox(parent)
+
 
         self.driverThread = None
         self.released = True
@@ -47,18 +53,39 @@ class SliderRow():
         self.widgets = [
             self.name,
             self.slider,
-            self.valueLabel
+            self.valueLabel,
+            self.keepValueCheckBox
         ]
         # format: [rowSpan, colSpan]
         self.spans = [
             [1, 1],
             [1, 2],
+            [1, 1],
             [1, 1]
         ]
 
         if len(self.spans) != len(self.widgets):
-            print("Error 97")
+            print("Some widgets have no spans")
             exit(97)
+
+    def sliderKeyPress(self, event: PySide6.QtGui.QKeyEvent):
+
+        if event.key() == Qt.Key.Key_Right:
+            self.slider.setValue(abs(self.slider.value()))
+
+        elif event.key() == Qt.Key.Key_Left:
+            self.slider.setValue(-abs(self.slider.value()))
+
+        if event.isAutoRepeat():
+            return
+
+        self.sliderPressed()
+
+    def sliderKeyRelease(self, event: PySide6.QtGui.QKeyEvent):
+        if event.isAutoRepeat():
+            return
+        self.sliderReleased()
+
 
     def displaySliderValue(self, value):
         # map value from interval [sliderMin, sliderMax] to [displayMin, displayMax]
@@ -73,6 +100,7 @@ class SliderRow():
             self.parent.drive()
 
     def sliderPressed(self):
+
         if self.parent.checkBoxAbsRel.isChecked():
 
             self.driverThread = threading.Thread(target=self.sliderPressedLoop)
@@ -89,10 +117,11 @@ class SliderRow():
         if self.driverThread is not None:
             self.driverThread.join()
 
-        if self.parent.checkBoxAbsRel.isChecked():
+        if self.parent.checkBoxAbsRel.isChecked() and not self.keepValueCheckBox.isChecked():
             self.resetSlider()
 
     def resetSlider(self):
+        print("Resetting slider")
         self.slider.blockSignals(True)
         self.slider.setSliderPosition(self.sliderStart)
         self.displaySliderValue(self.sliderStart)
@@ -135,6 +164,7 @@ class SliderBox(QWidget):
     def __init__(self, parent: (Optional[PySide6.QtWidgets.QWidget]), motorDriver: MotorDriver):
 
         super().__init__(parent)
+        self.accessibleParent = parent
 
         self.motorDriver = motorDriver
 
@@ -179,6 +209,8 @@ class SliderBox(QWidget):
             SliderRow(self, "Power", sliderMin=-1 * UINT16_MAX, sliderMax=UINT16_MAX,
                       sliderStart=0)
         ]
+
+        self.sliders[0].keepValueCheckBox.setText("Keep value")
 
         for index, i in enumerate(self.sliders):
             i.addToGrid(self.mainLayout, 3 + index, 0)
