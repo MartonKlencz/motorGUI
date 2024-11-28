@@ -230,7 +230,8 @@ class SliderBox(QWidget):
         self.waitBetweenSignals.setEnabled(self.checkBoxAbsRel.isChecked())
 
         for i in self.sliders:
-            i.resetSlider()
+            if not i.keepValueCheckBox.isChecked():
+                i.resetSlider()
 
     def getOptions(self):
         options = 0
