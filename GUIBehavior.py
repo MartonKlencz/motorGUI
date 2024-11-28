@@ -44,6 +44,7 @@ class SliderRow():
         self.displaySliderValue(sliderStart)
 
         self.keepValueCheckBox = QCheckBox(parent)
+        self.keepValueCheckBox.checkStateChanged.connect(lambda: self.resetSlider() if not self.keepValueCheckBox.isChecked() else ...)
 
 
         self.driverThread = None
