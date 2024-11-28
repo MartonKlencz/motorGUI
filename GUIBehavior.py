@@ -280,7 +280,8 @@ class SliderBox(QWidget):
             "title": self.titleLine.text(),
             "movements": self.movementInputTextBox.toPlainText(),
             "absRel": str(self.checkBoxAbsRel.isChecked()),
-            "waitTime": self.waitBetweenSignals.text()
+            "waitTime": self.waitBetweenSignals.text(),
+            "keepValue": str([slider.keepValueCheckBox.isChecked() == True for slider in self.sliders])
         }
 
         return str(text)
@@ -294,3 +295,8 @@ class SliderBox(QWidget):
         self.movementInputTextBox.setPlainText(d["movements"])
         self.checkBoxAbsRel.setChecked(d["absRel"] == "True")
         self.waitBetweenSignals.setText(d["waitTime"])
+
+        if "keepValue" in d:
+            checkBoxes = eval(d["keepValue"])
+            for index, slider in enumerate(self.sliders):
+                slider.keepValueCheckBox.setChecked(checkBoxes[index])
