@@ -72,15 +72,24 @@ class SliderRow():
     def sliderKeyPress(self, event: PySide6.QtGui.QKeyEvent):
 
         if event.key() == Qt.Key.Key_Right:
-            self.slider.setValue(abs(self.slider.value()))
+            self.driveWithKey(event, abs(self.slider.value()), self.slider.value() + 1000)
+
 
         elif event.key() == Qt.Key.Key_Left:
-            self.slider.setValue(-abs(self.slider.value()))
+            self.driveWithKey(event, -abs(self.slider.value()), self.slider.value() - 1000)
+
+
+
+    def driveWithKey(self, event, value_absolute, value_relative):
+        if self.keepValueCheckBox.isChecked():
+            self.slider.setValue(value_absolute)
+        else:
+            self.slider.setValue(value_relative)
 
         if event.isAutoRepeat():
             return
-
-        self.sliderPressed()
+        else:
+            self.sliderPressed()
 
     def sliderKeyRelease(self, event: PySide6.QtGui.QKeyEvent):
         if event.isAutoRepeat():
@@ -257,7 +266,7 @@ class SliderBox(QWidget):
 
             # normalize ratios
 
-            m = max(movementRatioModifiers)
+            m = abs(max(movementRatioModifiers))
             movementRatioModifiers = [i / m for i in movementRatioModifiers]
             print(movementRatioModifiers)
             return movementIDs, movementRatioModifiers
