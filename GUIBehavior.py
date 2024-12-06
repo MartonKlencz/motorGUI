@@ -151,24 +151,40 @@ class SliderRow():
 
 
 class SliderBox(QWidget):
-
     handMovementToMessageID = {
-        "W_FE":     0x11,
-        "W_AA":     0x12,
-        "W_PS":     0x13,
-        "FPL":      0x14,
-        "OP":       0x15,
-        "APB":      0x16,
-        "AP":       0x17,
-        "FDP2":     0x18,
-        "EDC2":     0x19,
-        "INT2":     0x1a,
-        "FDP3":     0x1b,
-        "EDC3":     0x1c,
-        "INT3":     0x1d,
-        "FDP4":     0x1e,
-        "FDP5":     0x1f,
-        "LUM":      0x20
+        "W_FE": 0x11,
+        "W_AA": 0x12,
+        "W_PS": 0x13,
+        "FPL": 0x14,
+        "OP": 0x15,
+        "APB": 0x16,
+        "AP": 0x17,
+        "FDP2": 0x18,
+        "EDC2": 0x19,
+        "INT2": 0x1a,
+        "FDP3": 0x1b,
+        "EDC3": 0x1c,
+        "INT3": 0x1d,
+        "FDP4": 0x1e,
+        "FDP5": 0x1f,
+        "LUM": 0x20,
+
+        "M1": 0x1f,
+        "M2": 0x1d,
+        "M3": 0x1b,
+        "M4": 0x20,
+        "M5": 0x1e,
+        "M6": 0x18,
+        "M7": 0x12,
+        "M8": 0x14,
+        "M9": 0x15,
+        "M10": 0x13,
+        "M11": 0x16,
+        "M12": 0x17,
+        "M13": 0x11,
+        "M14": 0x19,
+        "M15": 0x1a,
+        "M16": 0x1c
     }
 
     def __init__(self, parent: (Optional[PySide6.QtWidgets.QWidget]), motorDriver: MotorDriver):
